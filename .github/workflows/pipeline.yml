@@ -1,0 +1,40 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  Continuous-Integration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar ambiente Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Rodar testes locais (CI)
+        run: node test_api.js
+
+  Continuous-Delivery:
+    needs: Continuous-Integration 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Empacotar os arquivos do site (Build)
+        run: |
+          mkdir build
+          cp index.html style.css app.js build/
+
+      - name: Salvar pacote como Artefato (CD)
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-pronto
+          path: build/
